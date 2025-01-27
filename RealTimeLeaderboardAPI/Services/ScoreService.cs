@@ -1,4 +1,5 @@
-﻿using RealTimeLeaderboardAPI.DataAccess;
+﻿using Microsoft.EntityFrameworkCore;
+using RealTimeLeaderboardAPI.DataAccess;
 using RealTimeLeaderboardAPI.Models;
 using StackExchange.Redis;
 using System.Security.Claims;
@@ -30,7 +31,8 @@ namespace RealTimeLeaderboardAPI.Services
 				GameName = scoreDto.GameName,
 				ScoreValue = scoreDto.ScoreValue,
 				UserId = userId,
-				User = user
+				User = user,
+				TimeStamp = DateTime.UtcNow
 			};
 
 			_context.Scores.Add(score);
@@ -57,6 +59,26 @@ namespace RealTimeLeaderboardAPI.Services
 				{
 					Username = entry.Element,
 					ScoreValue = (int)entry.Score
+				}).ToList()
+			};
+
+			return leaderboardDto;
+		}
+		
+		public async Task<LeaderboardDto> GetLeaderboardForPeriod(string gameTitle, DateTime startDate, DateTime endDate)
+		{
+			var scores = await _context.Scores
+				.Where(s => s.GameName == gameTitle && s.TimeStamp >= startDate && s.TimeStamp <= endDate)
+				.OrderByDescending(s => s.ScoreValue)
+				.ToListAsync();
+
+			var leaderboardDto = new LeaderboardDto
+			{
+				GameTitle = gameTitle,
+				LeaderboardEntries = scores.Select(s => new LeaderboardEntryDto
+				{
+					Username = s.User.Username,
+					ScoreValue = s.ScoreValue
 				}).ToList()
 			};
 

@@ -7,5 +7,6 @@
 		public int ScoreValue { get; set; }
 		public string GameName { get; set; }
 		public UserModel User { get; set; }
+		public DateTime TimeStamp { get; set; }
 	}
 }

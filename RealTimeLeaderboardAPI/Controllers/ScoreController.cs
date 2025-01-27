@@ -45,5 +45,20 @@ namespace RealTimeLeaderboardAPI.Controllers
 				return BadRequest(ex.Message);
 			}
 		}
+
+		[HttpGet("leaderboard/{gameTitle}/{startDate}/{endDate}")]
+		[AllowAnonymous]
+		public async Task<IActionResult> GetLeaderboardForPeriod(string gameTitle, DateTime startDate, DateTime endDate)
+		{
+			try
+			{
+				var leaderboard = await _scoreService.GetLeaderboardForPeriod(gameTitle, startDate, endDate);
+				return Ok(leaderboard);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(ex.Message);
+			}
+		}
 	}
 }
